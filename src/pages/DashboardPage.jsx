@@ -62,7 +62,7 @@ function DashboardPage() {
       <div className="bg-gradient-to-r from-purple-600 to-indigo-800 text-white p-6 rounded-b-xl shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold flex items-center">
-            💰 <span className="ml-2">Kas Kelas XII-A</span>
+            💰 <span className="ml-2">Aplikasi Penarikan Kas</span>
           </h1>
           <div className="flex items-center space-x-4">
             <span className="text-lg">
