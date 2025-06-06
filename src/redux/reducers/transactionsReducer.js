@@ -26,22 +26,15 @@ const calculateStatistics = (transactions) => {
 
 const transactionsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_TRANSACTION: {
-      const newTransactions = [
-        { 
-          ...action.payload, 
-          id: `t${state.transactions.length + 1}`,
-          timestamp: new Date().toISOString()
-        },
-        ...state.transactions
-      ];
-
+    case ADD_TRANSACTION:
       return {
         ...state,
-        transactions: newTransactions,
-        statistics: calculateStatistics(newTransactions)
+        transactions: [
+          action.payload,
+          ...state.transactions
+        ],
+        statistics: calculateStatistics(state.transactions.concat(action.payload))
       };
-    }
 
     case DELETE_TRANSACTION: {
       const remainingTransactions = state.transactions.filter(
@@ -68,7 +61,8 @@ const transactionsReducer = (state = initialState, action) => {
             ? {
                 ...transaction,
                 status: 'verified',
-                verificationDate: action.payload.verificationDate
+                verificationDate: action.payload.verificationDate,
+                updatedAt: action.payload.updatedAt
               }
             : transaction
         )
@@ -82,7 +76,8 @@ const transactionsReducer = (state = initialState, action) => {
             ? {
                 ...transaction,
                 status: 'rejected',
-                verificationDate: action.payload.rejectionDate
+                verificationDate: action.payload.rejectionDate,
+                updatedAt: action.payload.updatedAt
               }
             : transaction
         )
