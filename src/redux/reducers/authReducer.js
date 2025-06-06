@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESS, LOGOUT } from '../constants/index';
+import { LOGIN_SUCCESS, LOGOUT } from "../constants/actionTypes";
 
 const initialState = {
   isAuthenticated: false,

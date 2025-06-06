@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
   Link,
-  useLocation
+  useLocation,
+  useNavigate
 } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "./redux/actions/authActions";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import SettingsPage from "./components/Settings/SettingsPage";
@@ -19,9 +21,61 @@ const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+const UserMenu = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/10 transition-colors"
+      >
+        <span className="text-xl">👤</span>
+        <span className="hidden sm:block">{user?.name || 'User'}</span>
+        <span className="text-sm">▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+          <div className="px-4 py-2 border-b">
+            <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+            <p className="text-xs text-gray-500">{user?.email}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center space-x-2"
+          >
+            <span>🚪</span>
+            <span>Keluar</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Navigation = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const user = useSelector((state) => state.auth.user);
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -62,6 +116,9 @@ const Navigation = () => {
               </Link>
             ))}
           </div>
+
+          {/* User Menu */}
+          <UserMenu />
 
           {/* Mobile Menu Button */}
           <button
