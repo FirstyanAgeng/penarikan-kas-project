@@ -45,7 +45,7 @@ const initialState = {
       icon: '📲',
       enabled: true,
       options: [
-        { id: 'qris', name: 'Scan QRIS', accountNumber: '', enabled: true }
+        { id: 'qris', name: 'Scan QRIS', accountNumber: '', qrCodeImage: '', enabled: true }
       ]
     }
   }

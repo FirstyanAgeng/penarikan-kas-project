@@ -1,7 +1,11 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 function PaymentInstructionsModal({ isOpen, onClose, paymentDetails, amount }) {
   if (!isOpen) return null;
+
+  const settings = useSelector(state => state.settings);
+  const qrisDetails = settings.paymentMethods.qris.options.find(opt => opt.id === 'qris');
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -30,18 +34,45 @@ function PaymentInstructionsModal({ isOpen, onClose, paymentDetails, amount }) {
         </div>
 
         <div className="space-y-4">
-          <div className="border rounded-lg p-4">
-            <p className="font-medium mb-2">Nomor Rekening/Akun:</p>
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
-              <code className="font-mono text-lg">{paymentDetails.accountNumber}</code>
-              <button
-                onClick={() => copyToClipboard(paymentDetails.accountNumber)}
-                className="text-purple-600 hover:text-purple-700"
-              >
-                📋 Salin
-              </button>
+          {paymentDetails.methodId === 'qris' && qrisDetails?.qrCodeImage ? (
+            <div className="border rounded-lg p-4">
+              <p className="font-medium mb-4 text-center">Scan QR Code di bawah ini:</p>
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={qrisDetails.qrCodeImage} 
+                  alt="QRIS Code"
+                  className="w-64 h-64 object-contain"
+                />
+              </div>
+              {qrisDetails.accountNumber && (
+                <div className="mt-4">
+                  <p className="font-medium mb-2">ID QRIS:</p>
+                  <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                    <code className="font-mono text-lg">{qrisDetails.accountNumber}</code>
+                    <button
+                      onClick={() => copyToClipboard(qrisDetails.accountNumber)}
+                      className="text-purple-600 hover:text-purple-700"
+                    >
+                      📋 Salin
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="border rounded-lg p-4">
+              <p className="font-medium mb-2">Nomor Rekening/Akun:</p>
+              <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                <code className="font-mono text-lg">{paymentDetails.accountNumber}</code>
+                <button
+                  onClick={() => copyToClipboard(paymentDetails.accountNumber)}
+                  className="text-purple-600 hover:text-purple-700"
+                >
+                  📋 Salin
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="border rounded-lg p-4">
             <p className="font-medium mb-3">Langkah Pembayaran:</p>
@@ -70,9 +101,9 @@ function PaymentInstructionsModal({ isOpen, onClose, paymentDetails, amount }) {
               )}
               {paymentDetails.methodId === 'qris' && (
                 <>
-                  <li>Buka aplikasi e-wallet pilihan Anda</li>
-                  <li>Pilih menu Scan/Pay</li>
-                  <li>Scan kode QR yang ditampilkan</li>
+                  <li>Buka aplikasi e-wallet atau m-banking pilihan Anda</li>
+                  <li>Pilih menu Scan/Pay/QRIS</li>
+                  <li>Scan kode QR yang ditampilkan di atas</li>
                   <li>Masukkan nominal Rp {parseInt(amount).toLocaleString('id-ID')}</li>
                   <li>Periksa detail pembayaran</li>
                   <li>Konfirmasi pembayaran</li>

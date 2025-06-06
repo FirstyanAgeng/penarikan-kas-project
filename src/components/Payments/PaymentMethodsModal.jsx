@@ -1,46 +1,11 @@
 import React from 'react';
-
-const paymentMethods = [
-  {
-    id: 'cash',
-    name: 'Tunai',
-    icon: '💵',
-    options: [
-      { id: 'cash', name: 'Pembayaran Tunai', accountNumber: '-' }
-    ]
-  },
-  {
-    id: 'bank_transfer',
-    name: 'Transfer Bank',
-    icon: '🏦',
-    options: [
-      { id: 'bca', name: 'BCA', accountNumber: '1234567890' },
-      { id: 'mandiri', name: 'Mandiri', accountNumber: '0987654321' },
-      { id: 'bni', name: 'BNI', accountNumber: '1122334455' }
-    ]
-  },
-  {
-    id: 'ewallet',
-    name: 'E-Wallet',
-    icon: '📱',
-    options: [
-      { id: 'gopay', name: 'GoPay', accountNumber: '081234567890' },
-      { id: 'ovo', name: 'OVO', accountNumber: '081234567890' },
-      { id: 'dana', name: 'DANA', accountNumber: '081234567890' }
-    ]
-  },
-  {
-    id: 'qris',
-    name: 'QRIS',
-    icon: '📲',
-    options: [
-      { id: 'qris', name: 'Scan QRIS', accountNumber: 'ID1020304050' }
-    ]
-  }
-];
+import { useSelector } from 'react-redux';
 
 function PaymentMethodsModal({ isOpen, onClose, onSelectPayment, amount }) {
   if (!isOpen) return null;
+
+  const settings = useSelector(state => state.settings);
+  const paymentMethods = Object.values(settings.paymentMethods).filter(method => method.enabled);
 
   const handleSelectPayment = (method, option) => {
     onSelectPayment({
@@ -78,7 +43,7 @@ function PaymentMethodsModal({ isOpen, onClose, onSelectPayment, amount }) {
                 <h3 className="text-lg font-semibold">{method.name}</h3>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                {method.options.map((option) => (
+                {method.options.filter(opt => opt.enabled).map((option) => (
                   <button
                     key={option.id}
                     onClick={() => handleSelectPayment(method, option)}

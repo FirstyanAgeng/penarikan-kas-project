@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { UPDATE_PAYMENT_METHODS, UPDATE_CLASS_INFO, SET_TARGET_PAYMENT } from '../../redux/constants/index';
 
@@ -6,6 +6,7 @@ function SettingsPage() {
   const dispatch = useDispatch();
   const settings = useSelector(state => state.settings);
   const targetPayment = useSelector(state => state.members.targetPaymentPerMember);
+  const fileInputRef = useRef(null);
   
   const [classInfo, setClassInfo] = useState(settings.classInfo);
   const [paymentTarget, setPaymentTarget] = useState(targetPayment);
@@ -55,6 +56,17 @@ function SettingsPage() {
         )
       }
     }));
+  };
+
+  const handleQRImageUpload = (e, methodId, optionId) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handlePaymentMethodChange(methodId, optionId, 'qrCodeImage', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSaveSettings = () => {
@@ -167,8 +179,8 @@ function SettingsPage() {
 
             <div className="space-y-4">
               {method.options.map(option => (
-                <div key={option.id} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
+                <div key={option.id} className="pl-4 border-l-4 border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="font-medium">{option.name}</span>
                     <label className="flex items-center cursor-pointer">
                       <input
@@ -180,33 +192,92 @@ function SettingsPage() {
                       <span className="ml-2 text-gray-700">Aktif</span>
                     </label>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      value={option.accountNumber}
-                      onChange={(e) => handlePaymentMethodChange(
-                        method.id,
-                        option.id,
-                        'accountNumber',
-                        e.target.value
-                      )}
-                      className="px-4 py-2 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
-                      placeholder="Nomor Rekening/Akun"
-                    />
-                    {option.accountName !== undefined && (
-                      <input
-                        type="text"
-                        value={option.accountName}
-                        onChange={(e) => handlePaymentMethodChange(
-                          method.id,
-                          option.id,
-                          'accountName',
-                          e.target.value
+                    {method.id === 'qris' ? (
+                      <>
+                        <div className="col-span-2">
+                          <label className="block text-gray-700 text-sm font-bold mb-2">
+                            QR Code
+                          </label>
+                          <div className="flex items-center space-x-4">
+                            {option.qrCodeImage ? (
+                              <div className="relative">
+                                <img 
+                                  src={option.qrCodeImage} 
+                                  alt="QRIS Code" 
+                                  className="w-48 h-48 object-contain border rounded-lg"
+                                />
+                                <button
+                                  onClick={() => handlePaymentMethodChange(method.id, option.id, 'qrCodeImage', '')}
+                                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center">
+                                <button
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200"
+                                >
+                                  Upload QR Code
+                                </button>
+                                <input
+                                  ref={fileInputRef}
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleQRImageUpload(e, method.id, option.id)}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <input
+                            type="text"
+                            value={option.accountNumber}
+                            onChange={(e) => handlePaymentMethodChange(
+                              method.id,
+                              option.id,
+                              'accountNumber',
+                              e.target.value
+                            )}
+                            className="w-full px-4 py-2 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                            placeholder="ID QRIS (Opsional)"
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          value={option.accountNumber}
+                          onChange={(e) => handlePaymentMethodChange(
+                            method.id,
+                            option.id,
+                            'accountNumber',
+                            e.target.value
+                          )}
+                          className="px-4 py-2 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                          placeholder="Nomor Rekening/Akun"
+                        />
+                        {option.accountName !== undefined && (
+                          <input
+                            type="text"
+                            value={option.accountName}
+                            onChange={(e) => handlePaymentMethodChange(
+                              method.id,
+                              option.id,
+                              'accountName',
+                              e.target.value
+                            )}
+                            className="px-4 py-2 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                            placeholder="Nama Pemilik Rekening"
+                          />
                         )}
-                        className="px-4 py-2 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
-                        placeholder="Nama Pemilik Rekening"
-                      />
+                      </>
                     )}
                   </div>
                 </div>
