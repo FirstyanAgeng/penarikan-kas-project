@@ -1,4 +1,4 @@
-import { ADD_TRANSACTION, DELETE_TRANSACTION, CLEAR_TRANSACTIONS } from '../constants/index';
+import { ADD_TRANSACTION, DELETE_TRANSACTION, CLEAR_TRANSACTIONS, VERIFY_PAYMENT, REJECT_PAYMENT } from '../constants/index';
 
 const initialState = {
   transactions: [],
@@ -58,6 +58,34 @@ const transactionsReducer = (state = initialState, action) => {
     case CLEAR_TRANSACTIONS:
       return {
         ...initialState
+      };
+
+    case VERIFY_PAYMENT:
+      return {
+        ...state,
+        transactions: state.transactions.map(transaction =>
+          transaction.id === action.payload.transactionId
+            ? {
+                ...transaction,
+                status: 'verified',
+                verificationDate: action.payload.verificationDate
+              }
+            : transaction
+        )
+      };
+
+    case REJECT_PAYMENT:
+      return {
+        ...state,
+        transactions: state.transactions.map(transaction =>
+          transaction.id === action.payload.transactionId
+            ? {
+                ...transaction,
+                status: 'rejected',
+                verificationDate: action.payload.rejectionDate
+              }
+            : transaction
+        )
       };
 
     default:

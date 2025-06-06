@@ -16,4 +16,8 @@ export const CLEAR_TRANSACTIONS = 'CLEAR_TRANSACTIONS';
 
 // Settings Constants
 export const UPDATE_PAYMENT_METHODS = 'UPDATE_PAYMENT_METHODS';
-export const UPDATE_CLASS_INFO = 'UPDATE_CLASS_INFO'; 
+export const UPDATE_CLASS_INFO = 'UPDATE_CLASS_INFO';
+
+// Payment Verification Constants
+export const VERIFY_PAYMENT = 'VERIFY_PAYMENT';
+export const REJECT_PAYMENT = 'REJECT_PAYMENT'; 
