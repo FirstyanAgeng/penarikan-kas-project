@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 
 function PaymentInputForm({ members, targetPaymentPerMember, onSavePayment }) {
   const [selectedMemberId, setSelectedMemberId] = useState("");
-  const [paymentAmount, setPaymentAmount] = useState("");
+  // Ubah inisialisasi paymentAmount menjadi 50000
+  const [paymentAmount, setPaymentAmount] = useState("50000");
   const [paymentDate, setPaymentDate] = useState(
     new Date().toISOString().slice(0, 10)
-  ); // YYYY-MM-DD
+  ); //YYYY-MM-DD
   const [description, setDescription] = useState("");
   const [changeOrDeficiency, setChangeOrDeficiency] = useState("");
 
@@ -13,6 +14,7 @@ function PaymentInputForm({ members, targetPaymentPerMember, onSavePayment }) {
     if (paymentAmount) {
       const amount = parseFloat(paymentAmount);
       const selectedMember = members.find((m) => m.id === selectedMemberId);
+      // Hitung jumlah yang harus dibayar oleh anggota, dikurangi total yang sudah dibayar
       const amountToPay =
         targetPaymentPerMember -
         (selectedMember ? selectedMember.totalPaid : 0);
@@ -73,7 +75,8 @@ function PaymentInputForm({ members, targetPaymentPerMember, onSavePayment }) {
 
     // Reset form
     setSelectedMemberId("");
-    setPaymentAmount("");
+    // Set paymentAmount kembali ke 50000 setelah submit
+    setPaymentAmount("50000");
     setDescription("");
     setChangeOrDeficiency("");
     setPaymentDate(new Date().toISOString().slice(0, 10));
