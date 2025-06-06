@@ -8,13 +8,26 @@ function PaymentMethodsModal({ isOpen, onClose, onSelectPayment, amount }) {
   const paymentMethods = Object.values(settings.paymentMethods).filter(method => method.enabled);
 
   const handleSelectPayment = (method, option) => {
-    onSelectPayment({
-      methodId: method.id,
-      methodName: method.name,
-      optionId: option.id,
-      optionName: option.name,
-      accountNumber: option.accountNumber
-    });
+    if (method.id === 'cash') {
+      // For cash payments, we don't need account details
+      onSelectPayment({
+        methodId: method.id,
+        methodName: method.name,
+        optionId: 'cash',
+        optionName: 'Pembayaran Tunai',
+        status: 'pending' // Cash payments need verification
+      });
+    } else {
+      // For other payment methods
+      onSelectPayment({
+        methodId: method.id,
+        methodName: method.name,
+        optionId: option.id,
+        optionName: option.name,
+        accountNumber: option.accountNumber,
+        status: 'verified' // Non-cash payments are auto-verified
+      });
+    }
     onClose();
   };
 
@@ -36,7 +49,26 @@ function PaymentMethodsModal({ isOpen, onClose, onSelectPayment, amount }) {
         </div>
 
         <div className="space-y-4">
-          {paymentMethods.map((method) => (
+          {/* Cash Payment Option - Always First */}
+          <div className="border rounded-lg p-4 bg-green-50">
+            <div className="flex items-center mb-2">
+              <span className="text-2xl mr-2">💵</span>
+              <h3 className="text-lg font-semibold">Tunai</h3>
+            </div>
+            <button
+              onClick={() => handleSelectPayment(settings.paymentMethods.cash, null)}
+              className="flex items-center justify-between w-full p-3 text-left border rounded-lg bg-white hover:bg-purple-50 transition-colors"
+            >
+              <div>
+                <span className="font-medium">Pembayaran Tunai</span>
+                <p className="text-sm text-gray-500">Pembayaran langsung ke bendahara</p>
+              </div>
+              <span className="text-gray-500">→</span>
+            </button>
+          </div>
+
+          {/* Other Payment Methods */}
+          {paymentMethods.filter(method => method.id !== 'cash').map((method) => (
             <div key={method.id} className="border rounded-lg p-4">
               <div className="flex items-center mb-2">
                 <span className="text-2xl mr-2">{method.icon}</span>
@@ -49,7 +81,12 @@ function PaymentMethodsModal({ isOpen, onClose, onSelectPayment, amount }) {
                     onClick={() => handleSelectPayment(method, option)}
                     className="flex items-center justify-between w-full p-3 text-left border rounded-lg hover:bg-purple-50 transition-colors"
                   >
-                    <span className="font-medium">{option.name}</span>
+                    <div>
+                      <span className="font-medium">{option.name}</span>
+                      {option.accountNumber && (
+                        <p className="text-sm text-gray-500">{option.accountNumber}</p>
+                      )}
+                    </div>
                     <span className="text-gray-500">→</span>
                   </button>
                 ))}

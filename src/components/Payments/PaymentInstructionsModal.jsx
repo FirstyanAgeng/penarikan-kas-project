@@ -5,7 +5,7 @@ function PaymentInstructionsModal({ isOpen, onClose, paymentDetails, amount }) {
   if (!isOpen) return null;
 
   const settings = useSelector(state => state.settings);
-  const qrisDetails = settings.paymentMethods.qris.options.find(opt => opt.id === 'qris');
+  const qrisDetails = settings.paymentMethods.qris?.options.find(opt => opt.id === 'qris');
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -34,7 +34,38 @@ function PaymentInstructionsModal({ isOpen, onClose, paymentDetails, amount }) {
         </div>
 
         <div className="space-y-4">
-          {paymentDetails.methodId === 'qris' && qrisDetails?.qrCodeImage ? (
+          {paymentDetails.methodId === 'cash' ? (
+            // Cash Payment Instructions
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center mb-4">
+                <span className="text-2xl mr-2">💵</span>
+                <h3 className="text-lg font-semibold">Pembayaran Tunai</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Catatan Penting:</strong>
+                  </p>
+                  <ul className="list-disc list-inside mt-2 text-sm text-yellow-800 space-y-1">
+                    <li>Pembayaran akan diverifikasi oleh bendahara</li>
+                    <li>Simpan bukti pembayaran yang diberikan bendahara</li>
+                    <li>Status pembayaran akan diperbarui setelah diverifikasi</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-medium mb-2">Langkah Pembayaran:</p>
+                  <ol className="list-decimal list-inside space-y-2 text-gray-600">
+                    <li>Siapkan uang tunai sejumlah Rp {parseInt(amount).toLocaleString('id-ID')}</li>
+                    <li>Temui bendahara kelas</li>
+                    <li>Serahkan uang tunai</li>
+                    <li>Minta bukti pembayaran</li>
+                    <li>Tunggu verifikasi dari bendahara</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          ) : paymentDetails.methodId === 'qris' && qrisDetails?.qrCodeImage ? (
+            // QRIS Payment Instructions
             <div className="border rounded-lg p-4">
               <p className="font-medium mb-4 text-center">Scan QR Code di bawah ini:</p>
               <div className="flex justify-center mb-4">
@@ -60,65 +91,56 @@ function PaymentInstructionsModal({ isOpen, onClose, paymentDetails, amount }) {
               )}
             </div>
           ) : (
-            <div className="border rounded-lg p-4">
-              <p className="font-medium mb-2">Nomor Rekening/Akun:</p>
-              <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                <code className="font-mono text-lg">{paymentDetails.accountNumber}</code>
-                <button
-                  onClick={() => copyToClipboard(paymentDetails.accountNumber)}
-                  className="text-purple-600 hover:text-purple-700"
-                >
-                  📋 Salin
-                </button>
+            // Other Payment Methods Instructions
+            <>
+              <div className="border rounded-lg p-4">
+                <p className="font-medium mb-2">Nomor Rekening/Akun:</p>
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                  <code className="font-mono text-lg">{paymentDetails.accountNumber}</code>
+                  <button
+                    onClick={() => copyToClipboard(paymentDetails.accountNumber)}
+                    className="text-purple-600 hover:text-purple-700"
+                  >
+                    📋 Salin
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
 
-          <div className="border rounded-lg p-4">
-            <p className="font-medium mb-3">Langkah Pembayaran:</p>
-            <ol className="list-decimal list-inside space-y-2 text-gray-600">
-              {paymentDetails.methodId === 'bank_transfer' && (
-                <>
-                  <li>Buka aplikasi m-banking {paymentDetails.optionName}</li>
-                  <li>Pilih menu Transfer</li>
-                  <li>Masukkan nomor rekening tujuan</li>
-                  <li>Masukkan nominal transfer Rp {parseInt(amount).toLocaleString('id-ID')}</li>
-                  <li>Periksa kembali detail transfer</li>
-                  <li>Masukkan PIN dan konfirmasi transfer</li>
-                  <li>Simpan bukti transfer</li>
-                </>
-              )}
-              {paymentDetails.methodId === 'ewallet' && (
-                <>
-                  <li>Buka aplikasi {paymentDetails.optionName}</li>
-                  <li>Pilih menu Transfer/Kirim Uang</li>
-                  <li>Masukkan nomor tujuan</li>
-                  <li>Masukkan nominal Rp {parseInt(amount).toLocaleString('id-ID')}</li>
-                  <li>Periksa detail pembayaran</li>
-                  <li>Konfirmasi pembayaran</li>
-                  <li>Simpan bukti pembayaran</li>
-                </>
-              )}
-              {paymentDetails.methodId === 'qris' && (
-                <>
-                  <li>Buka aplikasi e-wallet atau m-banking pilihan Anda</li>
-                  <li>Pilih menu Scan/Pay/QRIS</li>
-                  <li>Scan kode QR yang ditampilkan di atas</li>
-                  <li>Masukkan nominal Rp {parseInt(amount).toLocaleString('id-ID')}</li>
-                  <li>Periksa detail pembayaran</li>
-                  <li>Konfirmasi pembayaran</li>
-                  <li>Simpan bukti pembayaran</li>
-                </>
-              )}
-            </ol>
-          </div>
+              <div className="border rounded-lg p-4">
+                <p className="font-medium mb-3">Langkah Pembayaran:</p>
+                <ol className="list-decimal list-inside space-y-2 text-gray-600">
+                  {paymentDetails.methodId === 'bank_transfer' ? (
+                    <>
+                      <li>Buka aplikasi m-banking {paymentDetails.optionName}</li>
+                      <li>Pilih menu Transfer</li>
+                      <li>Masukkan nomor rekening tujuan</li>
+                      <li>Masukkan nominal transfer Rp {parseInt(amount).toLocaleString('id-ID')}</li>
+                      <li>Periksa kembali detail transfer</li>
+                      <li>Masukkan PIN dan konfirmasi transfer</li>
+                      <li>Simpan bukti transfer</li>
+                    </>
+                  ) : paymentDetails.methodId === 'ewallet' && (
+                    <>
+                      <li>Buka aplikasi {paymentDetails.optionName}</li>
+                      <li>Pilih menu Transfer/Kirim Uang</li>
+                      <li>Masukkan nomor tujuan</li>
+                      <li>Masukkan nominal Rp {parseInt(amount).toLocaleString('id-ID')}</li>
+                      <li>Periksa detail pembayaran</li>
+                      <li>Konfirmasi pembayaran</li>
+                      <li>Simpan bukti pembayaran</li>
+                    </>
+                  )}
+                </ol>
+              </div>
+            </>
+          )}
 
           <div className="mt-6">
             <button
               onClick={onClose}
               className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Saya Sudah Membayar
+              {paymentDetails.methodId === 'cash' ? 'Saya Mengerti' : 'Saya Sudah Membayar'}
             </button>
           </div>
         </div>
