@@ -20,12 +20,12 @@ function PaymentInputForm({ members, targetPaymentPerMember, onSavePayment }) {
     if (paymentAmount) {
       const amount = parseFloat(paymentAmount);
       const selectedMember = members.find((m) => m.id === selectedMemberId);
-      const amountToPay =
-        targetPaymentPerMember -
-        (selectedMember ? selectedMember.totalPaid : 0);
+      const amountToPay = selectedMember ? (
+        targetPaymentPerMember - selectedMember.totalPaid
+      ) : 0;
 
       if (!isNaN(amount) && selectedMember) {
-        const remainingOrChange = amount - amountToPay;
+        const remainingOrChange = parseFloat((amount - amountToPay).toFixed(2));
         if (remainingOrChange > 0) {
           setChangeOrDeficiency(
             `Kembalian: Rp ${remainingOrChange.toLocaleString("id-ID")}`

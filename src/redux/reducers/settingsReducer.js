@@ -8,6 +8,15 @@ const initialState = {
     semester: ''
   },
   paymentMethods: {
+    cash: {
+      id: 'cash',
+      name: 'Tunai',
+      icon: '💵',
+      enabled: true,
+      options: [
+        { id: 'cash', name: 'Pembayaran Tunai', accountNumber: '-', enabled: true }
+      ]
+    },
     bank_transfer: {
       id: 'bank_transfer',
       name: 'Transfer Bank',

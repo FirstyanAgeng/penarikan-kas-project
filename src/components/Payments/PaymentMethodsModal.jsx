@@ -2,6 +2,14 @@ import React from 'react';
 
 const paymentMethods = [
   {
+    id: 'cash',
+    name: 'Tunai',
+    icon: '💵',
+    options: [
+      { id: 'cash', name: 'Pembayaran Tunai', accountNumber: '-' }
+    ]
+  },
+  {
     id: 'bank_transfer',
     name: 'Transfer Bank',
     icon: '🏦',
