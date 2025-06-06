@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess, mockGoogleLogin } from "../redux/actions/authActions";
 import { useNavigate } from "react-router-dom";
@@ -10,17 +10,18 @@ function LoginPage() {
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate("/");
-  }
+  useEffect(() => {
+    // Handle navigation in useEffect instead of during render
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = (e) => {
     e.preventDefault();
     // Simple mock login (no actual validation)
     if (username === "admin" && password === "admin") {
       dispatch(loginSuccess({ name: "Admin", email: "admin@example.com" }));
-      navigate("/");
     } else {
       alert("Username atau password salah (admin/admin)");
     }
@@ -28,7 +29,6 @@ function LoginPage() {
 
   const handleGoogleLogin = () => {
     dispatch(mockGoogleLogin());
-    navigate("/");
   };
 
   return (

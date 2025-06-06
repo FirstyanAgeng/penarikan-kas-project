@@ -1,126 +1,110 @@
-import { ADD_MEMBER, UPDATE_MEMBER, DELETE_MEMBER } from "../constants";
+import {
+  ADD_MEMBER,
+  UPDATE_MEMBER,
+  DELETE_MEMBER,
+  UPDATE_MEMBER_PAYMENT_STATUS,
+  SET_TARGET_PAYMENT
+} from '../constants/index';
 
 const initialState = {
-  members: [
-    {
-      id: "m1",
-      name: "Ahmad Fauzi",
-      totalPaid: 50000,
-      status: "LUNAS",
-      lastPaid: "15 Jan 2025",
-    },
-    {
-      id: "m2",
-      name: "Siti Nurhaliza",
-      totalPaid: 30000,
-      status: "BELUM LUNAS",
-      lastPaid: "10 Jan 2025",
-    },
-    {
-      id: "m3",
-      name: "Budi Santoso",
-      totalPaid: 50000,
-      status: "LUNAS",
-      lastPaid: "20 Jan 2025",
-    },
-    {
-      id: "m4",
-      name: "Dewi Sartika",
-      totalPaid: 25000,
-      status: "BELUM LUNAS",
-      lastPaid: "05 Jan 2025",
-    },
-    {
-      id: "m5",
-      name: "Rizki Pratama",
-      totalPaid: 50000,
-      status: "LUNAS",
-      lastPaid: "18 Jan 2025",
-    },
-    {
-      id: "m6",
-      name: "Maya Putri",
-      totalPaid: 0,
-      status: "BELUM BAYAR",
-      lastPaid: "-",
-    },
-    {
-      id: "m7",
-      name: "Andi Wijaya",
-      totalPaid: 40000,
-      status: "BELUM LUNAS",
-      lastPaid: "12 Jan 2025",
-    },
-    {
-      id: "m8",
-      name: "Lina Marlina",
-      totalPaid: 50000,
-      status: "LUNAS",
-      lastPaid: "22 Jan 2025",
-    },
-    {
-      id: "m9",
-      name: "Doni Setiawan",
-      totalPaid: 35000,
-      status: "BELUM LUNAS",
-      lastPaid: "08 Jan 2025",
-    },
-    {
-      id: "m10",
-      name: "Rini Susanti",
-      totalPaid: 50000,
-      status: "LUNAS",
-      lastPaid: "25 Jan 2025",
-    },
-  ],
-  targetPaymentPerMember: 50000, // Contoh: Target pembayaran per anggota
+  members: [],
+  targetPaymentPerMember: 0,
+  statistics: {
+    totalMembers: 0,
+    paidMembers: 0,
+    unpaidMembers: 0,
+    totalCollected: 0,
+    targetTotal: 0
+  }
+};
+
+const calculateStatistics = (members, targetPaymentPerMember) => {
+  const stats = {
+    totalMembers: members.length,
+    paidMembers: members.filter(m => m.status === 'LUNAS').length,
+    unpaidMembers: members.filter(m => m.status !== 'LUNAS').length,
+    totalCollected: members.reduce((sum, m) => sum + m.totalPaid, 0),
+    targetTotal: members.length * targetPaymentPerMember
+  };
+  return stats;
 };
 
 const membersReducer = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_MEMBER:
+    case ADD_MEMBER: {
+      const newMembers = [
+        ...state.members,
+        {
+          ...action.payload,
+          id: `m${state.members.length + 1}`,
+          totalPaid: action.payload.totalPaid || 0,
+          status: action.payload.totalPaid >= state.targetPaymentPerMember ? 'LUNAS' : 'BELUM BAYAR',
+          lastPaid: action.payload.totalPaid > 0 ? new Date().toLocaleDateString('id-ID') : '-'
+        }
+      ];
+      
       return {
         ...state,
-        members: [
-          ...state.members,
-          { ...action.payload, id: `m${state.members.length + 1}` },
-        ],
+        members: newMembers,
+        statistics: calculateStatistics(newMembers, state.targetPaymentPerMember)
       };
-    case UPDATE_MEMBER:
+    }
+
+    case UPDATE_MEMBER: {
+      const updatedMembers = state.members.map(member =>
+        member.id === action.payload.id
+          ? { ...member, ...action.payload.updates }
+          : member
+      );
+
       return {
         ...state,
-        members: state.members.map((member) =>
-          member.id === action.payload.id
-            ? { ...member, ...action.payload.updates }
-            : member
-        ),
+        members: updatedMembers,
+        statistics: calculateStatistics(updatedMembers, state.targetPaymentPerMember)
       };
-    case DELETE_MEMBER:
+    }
+
+    case DELETE_MEMBER: {
+      const remainingMembers = state.members.filter(
+        member => member.id !== action.payload
+      );
+
       return {
         ...state,
-        members: state.members.filter((member) => member.id !== action.payload),
+        members: remainingMembers,
+        statistics: calculateStatistics(remainingMembers, state.targetPaymentPerMember)
       };
-    // Tambahkan logic untuk update totalPaid dan status saat ada transaksi
-    case "UPDATE_MEMBER_PAYMENT_STATUS": // Ini akan dipanggil dari action transaksi
+    }
+
+    case UPDATE_MEMBER_PAYMENT_STATUS: {
+      const updatedMembers = state.members.map(member => {
+        if (member.id === action.payload.memberId) {
+          const newTotalPaid = member.totalPaid + action.payload.amount;
+          return {
+            ...member,
+            totalPaid: newTotalPaid,
+            status: newTotalPaid >= state.targetPaymentPerMember ? 'LUNAS' : 'BELUM LUNAS',
+            lastPaid: action.payload.date
+          };
+        }
+        return member;
+      });
+
       return {
         ...state,
-        members: state.members.map((member) => {
-          if (member.id === action.payload.memberId) {
-            const newTotalPaid = member.totalPaid + action.payload.amount;
-            const newStatus =
-              newTotalPaid >= state.targetPaymentPerMember
-                ? "LUNAS"
-                : "BELUM LUNAS";
-            return {
-              ...member,
-              totalPaid: newTotalPaid,
-              status: newStatus,
-              lastPaid: action.payload.date,
-            };
-          }
-          return member;
-        }),
+        members: updatedMembers,
+        statistics: calculateStatistics(updatedMembers, state.targetPaymentPerMember)
       };
+    }
+
+    case SET_TARGET_PAYMENT: {
+      return {
+        ...state,
+        targetPaymentPerMember: action.payload,
+        statistics: calculateStatistics(state.members, action.payload)
+      };
+    }
+
     default:
       return state;
   }

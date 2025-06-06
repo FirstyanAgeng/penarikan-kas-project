@@ -1,22 +1,21 @@
-import { LOGIN_SUCCESS, LOGOUT } from "../constants";
+import { LOGIN_SUCCESS, LOGOUT } from '../constants/index';
 
-export const loginSuccess = (user) => ({
+export const loginSuccess = (userData) => ({
   type: LOGIN_SUCCESS,
-  payload: user,
+  payload: userData
 });
 
 export const logout = () => ({
-  type: LOGOUT,
+  type: LOGOUT
 });
 
+// Mock Google login for demonstration
 export const mockGoogleLogin = () => (dispatch) => {
-  // Simulate a successful Google login
-  const mockUser = {
-    name: "Google User",
-    email: "google.user@example.com",
-    id: "mockGoogleId123",
-    avatar: "https://via.placeholder.com/40/007bff/ffffff?text=G", // Placeholder avatar
+  const mockUserData = {
+    name: 'Google User',
+    email: 'user@gmail.com',
+    provider: 'google'
   };
-  dispatch(loginSuccess(mockUser));
-  // In a real app, this would involve OAuth flow and receiving user data from Google.
+  
+  dispatch(loginSuccess(mockUserData));
 };
