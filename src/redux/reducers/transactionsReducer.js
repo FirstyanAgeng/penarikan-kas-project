@@ -1,4 +1,4 @@
-import { ADD_TRANSACTION, DELETE_TRANSACTION, CLEAR_TRANSACTIONS, VERIFY_PAYMENT, REJECT_PAYMENT } from '../constants/index';
+import { ADD_TRANSACTION, DELETE_TRANSACTION, CLEAR_TRANSACTIONS, VERIFY_PAYMENT, REJECT_PAYMENT } from "../constants/index";
 
 const initialState = {
   transactions: [],

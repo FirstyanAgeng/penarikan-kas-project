@@ -1,4 +1,4 @@
-import { ADD_TRANSACTION, VERIFY_PAYMENT, REJECT_PAYMENT } from "../constants";
+import { ADD_TRANSACTION, VERIFY_PAYMENT, REJECT_PAYMENT } from "../constants/index";
 import { updateMemberPaymentStatus } from "./membersActions";
 
 export const addTransaction = (transaction) => (dispatch) => {
